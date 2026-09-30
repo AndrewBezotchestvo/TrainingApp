@@ -1,10 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+
+<a href="{{ url_for('index') }}" class="muted">← На главную</a>
+
+<h2 style="margin-top: 10px;">
+    {{ exercise.name }}
+    <span class="tag {{ exercise.category }}">
+        {{ 'кардио' if exercise.is_cardio else 'силовое' }}
+    </span>
+</h2>
+
+<div class="card">
+    <strong>Текущее значение:</strong>
+    <span class="value">{{ exercise.display_value }}</span>
+    {% if exercise.reps %}× {{ exercise.reps }}{% endif %}
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">История изменений</h3>
+
+    {% if not exercise.history %}
+        <p class="muted">История пуста.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Значение</th>
+                    <th>Повторы</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in exercise.history %}
+                <tr>
+                    <td class="muted">{{ log.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td class="value">
+                        {{ log.value|round(2)|string|replace('.0', '') }}
+                        {{ 'км' if exercise.is_cardio else 'кг' }}
+                    </td>
+                    <td>{{ log.reps if log.reps else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,10 +1,131 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Форма добавления/обновления упражнения -->
+<div class="card">
+    <h3 style="margin-top: 0;">Добавить упражнение</h3>
+    <p class="muted" style="margin-top: 0;">
+        Если упражнение с таким названием уже есть — его текущее значение обновится.
+    </p>
+
+    <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-grid">
+            <div>
+                {{ form.name.label }}
+                {{ form.name(placeholder='Жим лёжа') }}
+                {% for e in form.name.errors %}<div class="error">{{ e }}</div>{% endfor %}
+            </div>
+            <div>
+                {{ form.category.label }}
+                {{ form.category() }}
+            </div>
+            <div>
+                {{ form.value.label }}
+                {{ form.value(step='0.01', placeholder='60') }}
+                {% for e in form.value.errors %}<div class="error">{{ e }}</div>{% endfor %}
+            </div>
+            <div>
+                {{ form.reps.label }}
+                {{ form.reps(placeholder='8') }}
+                {% for e in form.reps.errors %}<div class="error">{{ e }}</div>{% endfor %}
+            </div>
+            <div>
+                {{ form.submit(class='btn') }}
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Силовые -->
+{% if strength %}
+<div class="card">
+    <h3 style="margin-top: 0;">💪 Силовые ({{ strength|length }})</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Упражнение</th>
+                <th>Текущий вес</th>
+                <th>Повторы</th>
+                <th>Обновлено</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ex in strength %}
+            <tr>
+                <td>
+                    <span class="tag strength">силовое</span>
+                    <strong>{{ ex.name }}</strong>
+                </td>
+                <td class="value">{{ ex.value|round(2)|string|replace('.0', '') }} кг</td>
+                <td>{{ ex.reps if ex.reps else '—' }}</td>
+                <td class="muted">{{ ex.updated_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td style="white-space: nowrap;">
+                    <a class="btn btn-secondary"
+                       href="{{ url_for('exercise_history', exercise_id=ex.id) }}">История</a>
+                    <form method="post"
+                          action="{{ url_for('delete_exercise', exercise_id=ex.id) }}"
+                          style="display: inline;"
+                          onsubmit="return confirm('Удалить упражнение?')">
+                        {{ delete_form.hidden_tag() }}
+                        <button class="btn btn-danger">×</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- Кардио -->
+{% if cardio %}
+<div class="card">
+    <h3 style="margin-top: 0;">🏃 Кардио ({{ cardio|length }})</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Упражнение</th>
+                <th>Дистанция</th>
+                <th>Обновлено</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ex in cardio %}
+            <tr>
+                <td>
+                    <span class="tag cardio">кардио</span>
+                    <strong>{{ ex.name }}</strong>
+                </td>
+                <td class="value">{{ ex.value|round(2)|string|replace('.0', '') }} км</td>
+                <td class="muted">{{ ex.updated_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td style="white-space: nowrap;">
+                    <a class="btn btn-secondary"
+                       href="{{ url_for('exercise_history', exercise_id=ex.id) }}">История</a>
+                    <form method="post"
+                          action="{{ url_for('delete_exercise', exercise_id=ex.id) }}"
+                          style="display: inline;"
+                          onsubmit="return confirm('Удалить упражнение?')">
+                        {{ delete_form.hidden_tag() }}
+                        <button class="btn btn-danger">×</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if total == 0 %}
+    <div class="card">
+        <p class="muted" style="margin: 0;">
+            Пока нет ни одного упражнения. Добавь первое через форму выше 👆
+        </p>
+    </div>
+{% endif %}
+
+{% endblock %}

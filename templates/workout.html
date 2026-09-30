@@ -1,10 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+
+<a href="{{ url_for('index') }}" class="muted">← К списку тренировок</a>
+
+<h2 style="margin-top: 10px;">
+    📅 Тренировка {{ workout.date.strftime('%d.%m.%Y') }}
+</h2>
+
+{% if workout.notes %}
+    <div class="card">
+        <strong>Заметки:</strong> {{ workout.notes }}
+    </div>
+{% endif %}
+
+<!-- Форма добавления упражнения -->
+<div class="card">
+    <h3 style="margin-top: 0;">Добавить упражнение</h3>
+
+    <form method="post"
+          action="{{ url_for('add_exercise', workout_id=workout.id) }}"
+          novalidate>
+        {{ exercise_form.hidden_tag() }}
+
+        <div class="form-row">
+            {{ exercise_form.name.label }}
+            {{ exercise_form.name(placeholder='Например: Жим лёжа') }}
+            {% for e in exercise_form.name.errors %}<div class="error">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div class="form-row">
+            {{ exercise_form.category.label }}
+            {{ exercise_form.category() }}
+            {% for e in exercise_form.category.errors %}<div class="error">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div class="form-row-2">
+            <div>
+                {{ exercise_form.value.label }}
+                {{ exercise_form.value(step='0.01') }}
+                {% for e in exercise_form.value.errors %}<div class="error">{{ e }}</div>{% endfor %}
+            </div>
+            <div>
+                {{ exercise_form.reps.label }}
+                {{ exercise_form.reps() }}
+                {% for e in exercise_form.reps.errors %}<div class="error">{{ e }}</div>{% endfor %}
+            </div>
+        </div>
+
+        {{ exercise_form.submit(class='btn') }}
+    </form>
+</div>
+
+<!-- Список упражнений -->
+<div class="card">
+    <h3 style="margin-top: 0;">
+        Упражнения ({{ workout.exercises|length }})
+    </h3>
+
+    {% if not workout.exercises %}
+        <p class="muted">Пока ни одного упражнения не добавлено.</p>
+    {% else %}
+        <ul class="ex-list">
+            {% for ex in workout.exercises %}
+                <li>
+                    <span>
+                        <span class="tag {{ ex.category }}">
+                            {{ 'кардио' if ex.is_cardio else 'силовое' }}
+                        </span>
+                        <strong>{{ ex.name }}</strong> — {{ ex.display_value }}
+                        {% if ex.reps %}× {{ ex.reps }}{% endif %}
+                    </span>
+                    <form method="post"
+                          action="{{ url_for('delete_exercise', exercise_id=ex.id) }}">
+                        {{ delete_form.hidden_tag() }}
+                        <button class="btn btn-danger"
+                                onclick="return confirm('Удалить упражнение?')">×</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
+<form method="post"
+      action="{{ url_for('delete_workout', workout_id=workout.id) }}">
+    {{ delete_form.hidden_tag() }}
+    <button class="btn btn-danger"
+            onclick="return confirm('Удалить всю тренировку?')">
+        Удалить тренировку
+    </button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Новая тренировка</h2>
+
+<form method="post" class="card" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-row">
+        {{ form.date.label }}
+        {{ form.date() }}
+        {% for e in form.date.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="form-row">
+        {{ form.notes.label }}
+        {{ form.notes(rows=3, placeholder='Как прошло? (необязательно)') }}
+        {% for e in form.notes.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    </div>
+
+    {{ form.submit(class='btn') }}
+    <a class="btn btn-secondary" href="{{ url_for('index') }}"
+       style="margin-left: 8px;">Отмена</a>
+</form>
+
+<p class="muted">
+    💡 Сначала создай тренировку, потом добавляй упражнения на её странице.
+</p>
+
+{% endblock %}
