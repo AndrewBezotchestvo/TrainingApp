@@ -1,0 +1,22 @@
+name: Build and Publish image to Docker Hub
+on:
+   push:
+     branches:
+       - master
+     paths:
+       - 'Dockerfile'
+       - 'build-docker.yaml'
+       - '*.py'
+  
+jobs:
+  publish-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: build image
+        run: docker build . -t andrewbezotchestvo/trainingapp2
+      - name: push image to Docker Hub
+        run: |
+          docker push andrewbezotchestvo/trainingapp2
