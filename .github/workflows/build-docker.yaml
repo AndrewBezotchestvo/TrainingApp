@@ -19,4 +19,5 @@ jobs:
         run: docker build . -t andrewbezotchestvo/trainingapp2
       - name: push image to Docker Hub
         run: |
+          docker login -u andrewbezotchestvo -p ${{ secrets.DOCKER_HUB_TOKEN }}
           docker push andrewbezotchestvo/trainingapp2
